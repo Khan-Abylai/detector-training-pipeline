@@ -1,7 +1,11 @@
 import torch.nn as nn
 import torch
-from src.models.blocks import LinearConvBlock, OrdinaryConvBlock, PlateYoloBlock
-import src.config as config
+try:
+    from models.blocks import LinearConvBlock, OrdinaryConvBlock, PlateYoloBlock
+    import config as config
+except:
+    from src.models.blocks import LinearConvBlock, OrdinaryConvBlock, PlateYoloBlock
+    import src.config as config
 
 
 class LPDetector(nn.Module):

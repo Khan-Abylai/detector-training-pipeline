@@ -1,9 +1,14 @@
 import random
+
 import cv2
 import numpy as np
-from imgaug import augmenters as ia
 import torch
-from src.config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS
+from imgaug import augmenters as ia
+
+try:
+    from config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS
+except:
+    from src.config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS
 
 
 class DualCompose:

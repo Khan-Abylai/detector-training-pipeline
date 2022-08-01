@@ -7,8 +7,8 @@ import pandas as pd
 import lmdb
 import pyarrow as pa
 import six
-from src.tools import transforms
-import src.config as config
+from tools import transforms
+import config as config
 from PIL import Image
 import uuid
 

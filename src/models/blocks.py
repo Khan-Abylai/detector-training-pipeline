@@ -1,10 +1,15 @@
 import torch.nn as nn
 import torch
 import numpy as np
-from src.tools.bbox_utils import BBoxUtilsPlate,BBoxUtils
+try:
+    from tools.bbox_utils import BBoxUtilsPlate,BBoxUtils
+except:
+    from src.tools.bbox_utils import BBoxUtilsPlate, BBoxUtils
 from torch.nn import functional as fn
-import src.config as config
-
+try:
+    import config as config
+except:
+    import src.config as config
 
 class PlateYoloBlock(nn.Module):
 

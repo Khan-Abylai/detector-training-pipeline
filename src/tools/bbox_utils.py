@@ -1,5 +1,9 @@
 import torch
-import src.config as config
+
+try:
+    import config as config
+except:
+    import src.config as config
 import numpy as np
 
 
@@ -107,9 +111,12 @@ class BBoxUtilsPlate:
 
         incorrect_predictions = ((1 - self.mask) * predictions[..., -1] > conf_threshold).sum().item()
 
-        return (correct_predictions, incorrect_predictions, objects, self.mask, self.loss_weights, self.target_x,
-                self.target_y, self.target_w, self.target_h, self.target_x1, self.target_y1, self.target_x2,
-                self.target_y2, self.target_x3, self.target_y3, self.target_x4, self.target_y4)
+        return (
+            correct_predictions, incorrect_predictions, objects, self.mask, self.loss_weights, self.target_x,
+            self.target_y,
+            self.target_w, self.target_h, self.target_x1, self.target_y1, self.target_x2, self.target_y2,
+            self.target_x3,
+            self.target_y3, self.target_x4, self.target_y4)
 
 
 class BBoxUtilsPlateWithAnchors:
