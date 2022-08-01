@@ -38,9 +38,9 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/mnt/workspace/exp_data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/mnt/workspace/data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
                                data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/mnt/workspace/exp_data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/mnt/workspace/data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
                              data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_name', type=str, default='lp_detector', help='model name')
     parser.add_argument('--model_dir', type=str, default='/mnt/workspace/model_dir_',
                         help='directory where model checkpoints are saved')
-    parser.add_argument('--data_dir', type=str, default='/mnt/workspace/exp_data/images',
+    parser.add_argument('--data_dir', type=str, default='/mnt/workspace/data/facilities',
                         help='directory of data')
 
     args = parser.parse_args()

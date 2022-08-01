@@ -12,6 +12,7 @@ import src.config as config
 from PIL import Image
 import uuid
 
+
 class LPDataset(Dataset):
     def __init__(self, txt_files, transforms, size=(512, 512), data_dir='', train=False, debug=False):
         image_filenames = []
@@ -62,7 +63,7 @@ class LPDataset(Dataset):
 
             if self.debug:
                 copy_img = image.copy()
-                img_path = uuid.uuid4().__str__().replace('-', '')+'.jpg'
+                img_path = uuid.uuid4().__str__().replace('-', '') + '.jpg'
                 for plate in plate_boxes:
                     cv2.circle(copy_img, plate[0:2].astype(int), radius=1, color=(0, 0, 255), thickness=-1)
                     cv2.circle(copy_img, plate[4:6].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
@@ -83,7 +84,8 @@ class LPDataset(Dataset):
                     cv2.circle(copy_img, plate[6:8].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                     cv2.circle(copy_img, plate[8:10].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                     cv2.circle(copy_img, plate[10:12].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-                cv2.imwrite(os.path.join(config.BASE_FOLDER, 'logs', img_path.replace('.jpg', '-resized.jpg')), copy_img)
+                cv2.imwrite(os.path.join(config.BASE_FOLDER, 'logs', img_path.replace('.jpg', '-resized.jpg')),
+                            copy_img)
 
             image = cv2.resize(image, self.size)
             plate_boxes[:, ::2] /= config.IMG_W
@@ -119,9 +121,9 @@ if __name__ == '__main__':
         transforms.Rotate(limit=15, prob=0.2), transforms.ScaleDown(scale=0.5, prob=0.5),
         transforms.ImageOnly(transforms.Transpose()), transforms.BoxOnly(transforms.FillBox())])
 
-    lp_dataset = LPDataset(['/mnt/workspace/exp_data/train.txt'], transforms=visible_transform, size=(512, 512),
-                           data_dir='/mnt/workspace/exp_data/images', train=True)
-
+    lp_dataset = LPDataset(['/mnt/workspace/data/val.txt'], transforms=visible_transform, size=(512, 512),
+                           data_dir='/mnt/workspace/data/facilities', train=True, debug=True)
+    stop = 1
     for idx, item in enumerate(lp_dataset):
         image, bboxes = item
         bboxes[:, [4, 6, 8, 10]] += bboxes[:, [0]]
@@ -138,5 +140,7 @@ if __name__ == '__main__':
             cv2.circle(image, plate[6:8].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
             cv2.circle(image, plate[8:10].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
             cv2.circle(image, plate[10:12].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-        cv2.imwrite(os.path.join(config.BASE_FOLDER, 'logs',uuid.uuid4().__str__().replace('-', '')+'.jpg'), image)
-
+        path = os.path.join(config.BASE_FOLDER, 'logs', uuid.uuid4().__str__().replace('-', '') + '.jpg')
+        print(f"Path:{path} was written")
+        cv2.imwrite(path, image)
+        stop = 1
