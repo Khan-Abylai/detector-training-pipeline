@@ -14,7 +14,7 @@ img_w = 512
 img_h = 512
 img_size = (img_w, img_h)
 model = LPDetector(img_size).cuda()
-checkpoint = '/mnt/workspace/model_dir_lp_detector/499_500_TRAIN_|_Plates_0.000_659__Loss_0.083_VAL_|_Plates_Recall_0.969_124_Val_loss_0.055,_lr=1.220703125e-06.pth'
+checkpoint = '/mnt/workspace/model_dir_lp_detector/23_500_TRAIN_|_Plates_0.000_575632__Loss_0.082_VAL_|_Plates_Recall_0.979_60294_Val_loss_0.085,_lr=3.90625e-05.pth'
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
 model.load_state_dict(checkpoint)
@@ -72,7 +72,7 @@ for image_path in ls:
             transformation_matrix = cv2.getPerspectiveTransform(plate_box, RECT_LP_COORS)
             lp_img = cv2.warpPerspective(img_orig, transformation_matrix,
                                          np.array([plate[2] * rx, plate[3] * ry]).astype(int))
-            cv2.imwrite('/mnt/workspace/experiments/debug2/' + os.path.basename(image_path) + f'_lp_{plate_idx}.jpg',
+            cv2.imwrite('/mnt/workspace/experiments/debug4/' + os.path.basename(image_path) + f'_lp_{plate_idx}.jpg',
                         lp_img)
-        cv2.imwrite('/mnt/workspace/experiments/debug2/' + os.path.basename(image_path) + '.jpg', img_orig)
+        cv2.imwrite('/mnt/workspace/experiments/debug4/' + os.path.basename(image_path) + '.jpg', img_orig)
         print(f"Image:{image_path} was processed and written into debug folder")
