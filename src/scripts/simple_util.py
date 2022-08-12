@@ -35,7 +35,8 @@ for idx,item in enumerate(new_data):
         print(idx)
 
 
-data = new_old_data + new_new_data
+data = new_old_data
+# data = new_old_data + new_new_data
 
 data = np.array(data)
 np.savetxt('/mnt/workspace/uae_data/filenames.txt', data, delimiter=" ", fmt="%s")

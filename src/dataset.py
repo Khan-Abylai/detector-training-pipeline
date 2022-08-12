@@ -76,7 +76,7 @@ class LPDataset(Dataset):
                     cv2.circle(copy_img, plate[6:8].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                     cv2.circle(copy_img, plate[8:10].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                     cv2.circle(copy_img, plate[10:12].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-                cv2.imwrite(os.path.join(config.DEBUG_FOLDER, 'exp1', img_path), copy_img)
+                cv2.imwrite(os.path.join(config.DEBUG_FOLDER, 'exp2', img_path), copy_img)
 
             plate_boxes[:, ::2] *= config.IMG_W / img_w
             plate_boxes[:, 1::2] *= config.IMG_H / img_h
@@ -90,7 +90,7 @@ class LPDataset(Dataset):
                     cv2.circle(copy_img, plate[8:10].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                     cv2.circle(copy_img, plate[10:12].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
                 img_path = os.path.basename(image_filename).replace('.', '_resized_2.')
-                cv2.imwrite(os.path.join(config.DEBUG_FOLDER, 'exp1', img_path), copy_img)
+                cv2.imwrite(os.path.join(config.DEBUG_FOLDER, 'exp2', img_path), copy_img)
 
             image = cv2.resize(image, self.size)
             plate_boxes[:, ::2] /= config.IMG_W
@@ -98,7 +98,6 @@ class LPDataset(Dataset):
 
             plate_boxes[:, [4, 6, 8, 10]] -= plate_boxes[:, [0]]
             plate_boxes[:, [5, 7, 9, 11]] -= plate_boxes[:, [1]]
-            stop = 1
             if self.return_filepath:
                 return self.transformation(image, plate_boxes), image_filename
             else:
@@ -129,7 +128,7 @@ if __name__ == '__main__':
         transforms.Rotate(limit=15, prob=0.2), transforms.ScaleDown(scale=0.5, prob=0.5),
         transforms.ImageOnly(transforms.Transpose()), transforms.BoxOnly(transforms.FillBox())])
 
-    lp_dataset = LPDataset(['/mnt/workspace/uae_data/train.txt'], transforms=visible_transform, size=(512, 512),
+    lp_dataset = LPDataset(['/mnt/workspace/uae_data/val.txt'], transforms=visible_transform, size=(512, 512),
                            data_dir='/mnt/workspace/uae_data', train=True, debug=True, return_filepath=True)
     for idx, item in enumerate(lp_dataset):
         image_bboxes, filename = item
@@ -142,13 +141,13 @@ if __name__ == '__main__':
         image = image.transpose(1, 2, 0)
         image = np.ascontiguousarray(image, dtype=np.uint8)
         for plate in bboxes:
-            cv2.circle(image, plate[0:2].astype(int), radius=1, color=(0, 0, 255), thickness=-1)
-            cv2.circle(image, plate[4:6].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-            cv2.circle(image, plate[4:6].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-            cv2.circle(image, plate[6:8].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-            cv2.circle(image, plate[8:10].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-            cv2.circle(image, plate[10:12].astype(int), radius=1, color=(0, 255, 255), thickness=-1)
-            path = os.path.join(config.DEBUG_FOLDER, 'exp1', os.path.basename(filename).replace('.', '_resized_3.'))
+            #  B G R
+            cv2.circle(image, plate[0:2].astype(int), radius=1, color=(0, 0, 255), thickness=-1) # red
+            cv2.circle(image, plate[4:6].astype(int), radius=1, color=(0, 255, 0), thickness=-1) # green
+            cv2.circle(image, plate[6:8].astype(int), radius=1, color=(255,0, 255), thickness=-1) # Pink
+            cv2.circle(image, plate[8:10].astype(int), radius=1, color=(255, 255, 0), thickness=-1) # cyan - light blue
+            cv2.circle(image, plate[10:12].astype(int), radius=1, color=(255, 0, 0), thickness=-1) # blue
+            path = os.path.join(config.DEBUG_FOLDER, 'exp2', os.path.basename(filename).replace('.', '_resized_3.'))
             print(f"Path:{path} was written")
             print(image.shape)
             cv2.imwrite(path, image)
