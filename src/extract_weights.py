@@ -6,13 +6,13 @@ import numpy as np
 from models.models import LPDetector
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--weights_path', type=str, default='/mnt/workspace/model_dir_lp_detector/23_500_TRAIN_|_Plates_0.000_575632__Loss_0.082_VAL_|_Plates_Recall_0.979_60294_Val_loss_0.085,_lr=3.90625e-05.pth')
-parser.add_argument('--out_path', type=str, default='/mnt/workspace/extracted_weights/detector_weights.np')
+parser.add_argument('--weights_path', type=str, default='/mnt/workspace/model_dir/model_uae/52_500_TRAIN_|_Plates_0.000_21048__Loss_329347.292_VAL_|_Plates_Recall_0.001_1311_Val_loss_508094.375,_lr=1.220703125e-06.pth')
+parser.add_argument('--out_path', type=str, default='/mnt/workspace/extracted_weights/detector_weights_uae.np')
 parser.add_argument('--img_w', type=int, default=512)
 parser.add_argument('--img_h', type=int, default=512)
 args = parser.parse_args()
 
-model = LPDetector((args.img_w, args.img_h)).cuda()
+model = LPDetector((args.img_w, args.img_h))
 model = nn.DataParallel(model)
 checkpoint = torch.load(args.weights_path)['state_dict']
 model.load_state_dict(checkpoint)

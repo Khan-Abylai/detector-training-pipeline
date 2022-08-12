@@ -15,7 +15,6 @@ def get_latest_checkpoint(model_dir):
     max_epoch = max(epoch_numbers)
     max_epoch_index = epoch_numbers.index(max_epoch)
     max_epoch_filename = os.path.join(model_dir, files[max_epoch_index])
-    stop = 1
     return max_epoch_filename
 
 

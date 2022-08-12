@@ -15,12 +15,7 @@ from dataset import LPDataset
 import utils
 import config
 
-
-logging.basicConfig(
-    format='[%(asctime)s:] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO
-)
+logging.basicConfig(format='[%(asctime)s:] %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
 logger = logging.getLogger('training')
 
 
@@ -30,6 +25,8 @@ def train(gpu, args):
     torch.cuda.set_device(gpu)
 
     model_directory = args.model_dir + args.model_name + '/'
+    if not os.path.exists(model_directory):
+        os.mkdir(model_directory)
     model = utils.get_model((args.img_w, args.img_h), gpu)
 
     optimizer = optim.Adam(model.parameters(), lr=0.01)
@@ -38,28 +35,20 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/mnt/workspace/data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
-                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/mnt/workspace/data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
-                             data_dir=args.data_dir)
+    train_dataset = LPDataset(['/mnt/workspace/uae_data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
+                              data_dir=args.data_dir, train=True)
+    val_dataset = LPDataset(['/mnt/workspace/uae_data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
+                            data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
                                                                     shuffle=False)
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset, num_replicas=args.gpu_nums, rank=gpu,
                                                                   shuffle=False)
 
-    train_dataloader = DataLoader(train_dataset,
-                                  batch_size=args.batch_size,
-                                  shuffle=False,
-                                  num_workers=args.num_workers // args.gpu_nums,
-                                  sampler=train_sampler,
-                                  drop_last=True)
-    val_dataloader = DataLoader(val_dataset,
-                                batch_size=args.batch_size,
-                                shuffle=False,
-                                num_workers=args.num_workers // args.gpu_nums,
-                                sampler=val_sampler,
-                                drop_last=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False,
+                                  num_workers=args.num_workers // args.gpu_nums, sampler=train_sampler, drop_last=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False,
+                                num_workers=args.num_workers // args.gpu_nums, sampler=val_sampler, drop_last=True)
 
     for epoch in range(start_epoch, args.num_epochs):
         train_mean_loss = 0
@@ -76,10 +65,10 @@ def train(gpu, args):
         for images, plate_boxes in progress_bar:
             images = images.cuda(non_blocking=True)
             plate_boxes = plate_boxes.cuda(non_blocking=True)
+
             batch_size = images.shape[0]
             batch_info = model(images, plate_boxes)
-            batch_correct_plate_boxes, batch_incorrect_plate_boxes, batch_num_plate_boxes, batch_plate_loss = \
-                batch_info
+            batch_correct_plate_boxes, batch_incorrect_plate_boxes, batch_num_plate_boxes, batch_plate_loss = batch_info
             loss = (batch_plate_loss) * 100
             train_current_loss = loss.item()
 
@@ -99,12 +88,9 @@ def train(gpu, args):
             i += 1
             if gpu == 0:
                 if args.tqdm:
-                    progress_bar.set_description('{}/{} Plates: {:.3f}/{} Loss: {:.3f}/{:.3f}'.format(
-                        epoch, args.num_epochs,
-                        train_recall_plate_boxes,
-                        train_incorrect_plate_boxes,
-                        train_current_loss,
-                        train_mean_loss))
+                    progress_bar.set_description(
+                        '{}/{} Plates: {:.3f}/{} Loss: {:.3f}/{:.3f}'.format(epoch, args.num_epochs,
+                            train_recall_plate_boxes, train_incorrect_plate_boxes, train_current_loss, train_mean_loss))
                 if args.logging:
                     logger.info(f'Train_loss={train_mean_loss};')
             if i == len(train_dataloader):
@@ -124,8 +110,7 @@ def train(gpu, args):
                         batch_size = images.shape[0]
                         batch_info = model(images, plate_boxes, validate=True)
 
-                        batch_correct_plate_boxes, batch_incorrect_plate_boxes, batch_num_plate_boxes, batch_plate_loss = \
-                            batch_info
+                        batch_correct_plate_boxes, batch_incorrect_plate_boxes, batch_num_plate_boxes, batch_plate_loss = batch_info
 
                         loss = (batch_plate_loss) * 100
 
@@ -157,16 +142,9 @@ def train(gpu, args):
                 train_epoch_description = '{}/{} TRAIN | Plates {:.3f}/{}  Loss {:.3f}'
                 val_epoch_description = ' VAL | Plates Recall {:.3f}/{} Val_loss {:.3f}, lr={}'
                 epoch_description = train_epoch_description + val_epoch_description
-                epoch_description = epoch_description.format(
-                    epoch, args.num_epochs,
-                    train_recall_plate_boxes,
-                    train_incorrect_plate_boxes,
-                    train_mean_loss,
-                    val_recall_plate_boxes,
-                    val_incorrect_plate_boxes,
-                    val_mean_loss,
-                    optimizer.param_groups[0]['lr']
-                )
+                epoch_description = epoch_description.format(epoch, args.num_epochs, train_recall_plate_boxes,
+                    train_incorrect_plate_boxes, train_mean_loss, val_recall_plate_boxes, val_incorrect_plate_boxes,
+                    val_mean_loss, optimizer.param_groups[0]['lr'])
                 if gpu == 0:
                     if args.tqdm:
                         progress_bar.set_description(epoch_description)
@@ -174,18 +152,17 @@ def train(gpu, args):
                     if args.logging:
                         logger.info(epoch_description)
 
-                    torch.save({
-                        'epoch': epoch,
-                        'state_dict': model.state_dict(),
-                        'optimizer': optimizer.state_dict(),
-                    }, model_directory + epoch_description.replace(' ', '_').replace('/', '_') + '.pth')
+                    torch.save(
+                        {'epoch': epoch, 'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict(), },
+                        model_directory + epoch_description.replace(' ', '_').replace('/', '_') + '.pth')
 
                 model.train()
                 scheduler.step(val_mean_loss)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=40)
     parser.add_argument('--num_workers', type=int, default=16)
     parser.add_argument('--lr', type=float, default=None)
     parser.add_argument('--num_epochs', type=int, default=500)
@@ -203,11 +180,10 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='lp_detector', help='model name')
-    parser.add_argument('--model_dir', type=str, default='/mnt/workspace/model_dir_',
+    parser.add_argument('--model_name', type=str, default='uae_2', help='model name')
+    parser.add_argument('--model_dir', type=str, default='/mnt/workspace/model_dir/model_',
                         help='directory where model checkpoints are saved')
-    parser.add_argument('--data_dir', type=str, default='/mnt/workspace/data/facilities',
-                        help='directory of data')
+    parser.add_argument('--data_dir', type=str, default='/mnt/workspace/uae_data', help='directory of data')
 
     args = parser.parse_args()
 
