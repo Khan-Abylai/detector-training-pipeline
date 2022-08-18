@@ -1,5 +1,4 @@
-docker run -d -it --rm --ipc=host --cap-add sys_ptrace -p127.0.0.1:2223:22 \
-            --gpus all -e DISPLAY="$DISPLAY" \
-            -v /tmp/.X11-unix:/tmp/.X11-unix \
+docker run -d -it --rm --ipc=host --cap-add sys_ptrace -p127.0.0.1:9002:22 \
+            --gpus '"device=0"'\
             --name lp_recognizer \
-            doc.smartparking.kz/parking_detector:1.0
+            registry.infra.smartparking.kz/detector:dev

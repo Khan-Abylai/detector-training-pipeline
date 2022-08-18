@@ -8,7 +8,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get -y install tzdata
 
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	python3-pip \
 	libsm6 \
@@ -33,8 +32,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libsm6 \
 	libxext6 \
 	python3-dev && apt-get clean
-
-
 
 RUN pip3 install --no-cache-dir \
 	torch==1.8.1+cu111 \
