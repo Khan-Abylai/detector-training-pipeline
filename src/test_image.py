@@ -26,7 +26,7 @@ transform = transforms.DualCompose([
     transforms.ToTensor()
 ])
 
-ls = glob('/home/user/src/data/test_images/*')
+ls = glob('/home/user/src/data/single_test_images/*')
 
 for image_path in ls:
     img = cv2.imread(image_path)
@@ -35,6 +35,9 @@ for image_path in ls:
     fake_bboxes = np.random.rand(1, 12)
     x, _, = transform(img, fake_bboxes)
     x = torch.stack([x]).cuda()
+
+    stop = 1
+
     plate_output = model(x)
     plate_output = plate_output.cpu().detach().numpy()
     rx = float(img_orig.shape[1]) / img_w

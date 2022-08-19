@@ -36,9 +36,9 @@ class PlateYoloBlock(nn.Module):
 
     def forward(self, coordinates, target=None, validate=False):
         batch_size = coordinates.size(0)
-
+        stop = 1
         coordinates = coordinates.permute(0, 2, 3, 1).contiguous()
-
+        stop = 1
         coordinates[..., :2] = torch.sigmoid(coordinates[..., :2])
         coordinates[..., -1] = torch.sigmoid(coordinates[..., -1])
 
