@@ -35,9 +35,9 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/mnt/data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/mnt/data/uae_data/train.txt'], train_transforms, size=(args.img_w, args.img_h),
                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/mnt/data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/mnt/data/uae_data/val.txt'], val_transforms, size=(args.img_w, args.img_h),
                             data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -63,8 +63,8 @@ def train(gpu, args):
         if gpu == 0 and args.tqdm:
             progress_bar = tqdm(train_dataloader)
         for images, plate_boxes in progress_bar:
-            images = images.cuda(non_blocking=True)
-            plate_boxes = plate_boxes.cuda(non_blocking=True)
+            images = images.to('cuda:' + str(gpu), non_blocking=True)
+            plate_boxes = plate_boxes.to('cuda:' + str(gpu), non_blocking=True)
 
             batch_size = images.shape[0]
             batch_info = model(images, plate_boxes)
@@ -90,7 +90,9 @@ def train(gpu, args):
                 if args.tqdm:
                     progress_bar.set_description(
                         '{}/{} Plates: {:.3f}/{} Loss: {:.3f}/{:.3f}'.format(epoch, args.num_epochs,
-                            train_recall_plate_boxes, train_incorrect_plate_boxes, train_current_loss, train_mean_loss))
+                                                                             train_recall_plate_boxes,
+                                                                             train_incorrect_plate_boxes,
+                                                                             train_current_loss, train_mean_loss))
                 if args.logging:
                     logger.info(f'Train_loss={train_mean_loss};')
             if i == len(train_dataloader):
@@ -104,8 +106,8 @@ def train(gpu, args):
                 model.eval()
                 with torch.no_grad():
                     for images, plate_boxes in val_dataloader:
-                        images = images.cuda(non_blocking=True)
-                        plate_boxes = plate_boxes.cuda(non_blocking=True)
+                        images = images.to('cuda:' + str(gpu), non_blocking=True)
+                        plate_boxes = plate_boxes.to('cuda:' + str(gpu), non_blocking=True)
 
                         batch_size = images.shape[0]
                         batch_info = model(images, plate_boxes, validate=True)
@@ -143,8 +145,9 @@ def train(gpu, args):
                 val_epoch_description = ' VAL | Plates Recall {:.3f}/{} Val_loss {:.3f}, lr={}'
                 epoch_description = train_epoch_description + val_epoch_description
                 epoch_description = epoch_description.format(epoch, args.num_epochs, train_recall_plate_boxes,
-                    train_incorrect_plate_boxes, train_mean_loss, val_recall_plate_boxes, val_incorrect_plate_boxes,
-                    val_mean_loss, optimizer.param_groups[0]['lr'])
+                                                             train_incorrect_plate_boxes, train_mean_loss,
+                                                             val_recall_plate_boxes, val_incorrect_plate_boxes,
+                                                             val_mean_loss, optimizer.param_groups[0]['lr'])
                 if gpu == 0:
                     if args.tqdm:
                         progress_bar.set_description(epoch_description)
@@ -162,8 +165,8 @@ def train(gpu, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--num_workers', type=int, default=8)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--num_workers', type=int, default=64)
     parser.add_argument('--lr', type=float, default=None)
     parser.add_argument('--num_epochs', type=int, default=500)
     parser.add_argument('--checkpoint', type=str, default=None, help='path to checkpoint weights')
@@ -180,10 +183,10 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='uk', help='model name')
-    parser.add_argument('--model_dir', type=str, default='/mnt/data/model_',
+    parser.add_argument('--model_name', type=str, default='uae_3', help='model name')
+    parser.add_argument('--model_dir', type=str, default='/mnt/data/model_dir/model_',
                         help='directory where model checkpoints are saved')
-    parser.add_argument('--data_dir', type=str, default='/mnt/data/uk', help='directory of data')
+    parser.add_argument('--data_dir', type=str, default='/mnt/data/uae_data', help='directory of data')
 
     args = parser.parse_args()
 

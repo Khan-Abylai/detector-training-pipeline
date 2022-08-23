@@ -31,19 +31,20 @@ def load_weights(model, model_directory, checkpoint_path, gpu=0):
 
     start_epoch = 0
     if checkpoint_path is not None:
-        checkpoint = torch.load(checkpoint_path)
+        checkpoint = torch.load(checkpoint_path, map_location=f"cuda:{gpu}")
         model.load_state_dict(checkpoint['state_dict'], strict=False)
         start_epoch = checkpoint['epoch']
 
     elif os.listdir(model_directory):
         checkpoint_path = get_latest_checkpoint(model_directory)
-        checkpoint = torch.load(checkpoint_path)
+        checkpoint = torch.load(checkpoint_path, map_location=f"cuda:{gpu}")
         model.load_state_dict(checkpoint['state_dict'])
         start_epoch = checkpoint['epoch']
 
     print(f'Loading from the checkpoint with epoch number {start_epoch}')
 
     return model, start_epoch + 1
+
 
 
 def get_transforms():
