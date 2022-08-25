@@ -14,19 +14,19 @@ img_w = 512
 img_h = 512
 img_size = (img_w, img_h)
 model = LPDetector(img_size).cuda()
-checkpoint = '/home/user/src/weights/detector_base.pth'
+
+base_folder = '/home/user/detector_pipeline'
+
+checkpoint = os.path.join(base_folder, 'weights/uae_detector.pth')
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
 model.load_state_dict(checkpoint)
 model.eval()
 
-transform = transforms.DualCompose([
-    transforms.ImageOnly(transforms.Transpose()),
-    transforms.Normalize(),
-    transforms.ToTensor()
-])
+transform = transforms.DualCompose(
+    [transforms.ImageOnly(transforms.Transpose()), transforms.Normalize(), transforms.ToTensor()])
 
-ls = glob('/home/user/src/data/single_test_images/*')
+ls = glob(os.path.join(base_folder, 'data/uae_data/*'))
 
 for image_path in ls:
     img = cv2.imread(image_path)
@@ -36,13 +36,12 @@ for image_path in ls:
     x, _, = transform(img, fake_bboxes)
     x = torch.stack([x]).cuda()
 
-    stop = 1
-
     plate_output = model(x)
     plate_output = plate_output.cpu().detach().numpy()
     rx = float(img_orig.shape[1]) / img_w
     ry = float(img_orig.shape[0]) / img_h
     plates = bu.nms_np(plate_output[0], conf_thres=0.85)
+    extension = os.path.basename(image_path).split('.')[-1]
     if len(plates) > 0:
         plates[..., [4, 6, 8, 10]] += plates[..., [0]]
         plates[..., [5, 7, 9, 11]] += plates[..., [1]]
@@ -61,20 +60,15 @@ for image_path in ls:
             y2 = int((plate[1] + plate[3] / 2.) * ry)
             cv2.rectangle(img_orig, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-            plate_box = np.array([
-                (int((plate[4]) * rx), int((plate[5]) * ry)),
-                (int((plate[6]) * rx), int((plate[7]) * ry)),
-                (int((plate[8]) * rx), int((plate[9]) * ry)),
-                (int((plate[10]) * rx), int((plate[11]) * ry))], dtype=np.float32)
-            RECT_LP_COORS = np.array([
-                [0, 0],
-                [0, plate[3] * ry],
-                [plate[2] * rx, 0],
-                [plate[2] * rx, plate[3] * ry]], dtype=np.float32)
+            plate_box = np.array(
+                [(int((plate[4]) * rx), int((plate[5]) * ry)), (int((plate[6]) * rx), int((plate[7]) * ry)),
+                    (int((plate[8]) * rx), int((plate[9]) * ry)), (int((plate[10]) * rx), int((plate[11]) * ry))],
+                dtype=np.float32)
+            RECT_LP_COORS = np.array([[0, 0], [0, plate[3] * ry], [plate[2] * rx, 0], [plate[2] * rx, plate[3] * ry]],
+                dtype=np.float32)
             transformation_matrix = cv2.getPerspectiveTransform(plate_box, RECT_LP_COORS)
             lp_img = cv2.warpPerspective(img_orig, transformation_matrix,
                                          np.array([plate[2] * rx, plate[3] * ry]).astype(int))
-            cv2.imwrite('/home/user/src/logs/exp1/' + os.path.basename(image_path) + f'_lp_{plate_idx}.jpg',
-                        lp_img)
-        cv2.imwrite('/home/user/src/logs/exp1/' + os.path.basename(image_path) + '.jpg', img_orig)
+            cv2.imwrite(os.path.join(base_folder, 'logs/exp2/') + os.path.basename(image_path).replace('.'+extension, '') + f'_lp_{plate_idx}.jpg', lp_img)
+        cv2.imwrite(os.path.join(base_folder, 'logs/exp2/') + os.path.basename(image_path).replace('.'+extension, '') + '.jpg', img_orig)
         print(f"Image:{image_path} was processed and written into debug folder")
