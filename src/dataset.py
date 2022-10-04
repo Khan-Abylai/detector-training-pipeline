@@ -31,13 +31,13 @@ class LPDataset(Dataset):
         self.data_dir = data_dir
         self.debug = debug
         self.return_filepath = return_filepath
-        stop = 1
 
     def __len__(self):
         return len(self.image_filenames)
 
     def __getitem__(self, index):
         image_filename = os.path.join(self.data_dir, self.image_filenames[index])
+        stop = 1
         if not os.path.exists(image_filename):
             print("no file")
             return self[(index + 1) % len(self)]
