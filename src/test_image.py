@@ -17,7 +17,7 @@ model = LPDetector(img_size).cuda()
 
 base_folder = '/home/user/detector_pipeline'
 
-checkpoint = os.path.join(base_folder, 'weights/uae_detector.pth')
+checkpoint = os.path.join(base_folder, 'weights/detector_turkey.pth')
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
 model.load_state_dict(checkpoint)
@@ -26,7 +26,7 @@ model.eval()
 transform = transforms.DualCompose(
     [transforms.ImageOnly(transforms.Transpose()), transforms.Normalize(), transforms.ToTensor()])
 
-ls = glob(os.path.join(base_folder, 'data/uae_data/*'))
+ls = glob(os.path.join(base_folder, 'data/turkey_data/*'))
 
 for image_path in ls:
     img = cv2.imread(image_path)
@@ -62,13 +62,17 @@ for image_path in ls:
 
             plate_box = np.array(
                 [(int((plate[4]) * rx), int((plate[5]) * ry)), (int((plate[6]) * rx), int((plate[7]) * ry)),
-                    (int((plate[8]) * rx), int((plate[9]) * ry)), (int((plate[10]) * rx), int((plate[11]) * ry))],
+                 (int((plate[8]) * rx), int((plate[9]) * ry)), (int((plate[10]) * rx), int((plate[11]) * ry))],
                 dtype=np.float32)
             RECT_LP_COORS = np.array([[0, 0], [0, plate[3] * ry], [plate[2] * rx, 0], [plate[2] * rx, plate[3] * ry]],
-                dtype=np.float32)
+                                     dtype=np.float32)
             transformation_matrix = cv2.getPerspectiveTransform(plate_box, RECT_LP_COORS)
             lp_img = cv2.warpPerspective(img_orig, transformation_matrix,
                                          np.array([plate[2] * rx, plate[3] * ry]).astype(int))
-            cv2.imwrite(os.path.join(base_folder, 'logs/exp2/') + os.path.basename(image_path).replace('.'+extension, '') + f'_lp_{plate_idx}.jpg', lp_img)
-        cv2.imwrite(os.path.join(base_folder, 'logs/exp2/') + os.path.basename(image_path).replace('.'+extension, '') + '.jpg', img_orig)
+            cv2.imwrite(os.path.join(base_folder, 'logs/exp3/') + os.path.basename(image_path).replace('.' + extension,
+                                                                                                       '') + f'_lp_{plate_idx}.jpg',
+                        lp_img)
+        cv2.imwrite(os.path.join(base_folder, 'logs/exp3/') + os.path.basename(image_path).replace('.' + extension,
+                                                                                                   '') + '.jpg',
+                    img_orig)
         print(f"Image:{image_path} was processed and written into debug folder")
