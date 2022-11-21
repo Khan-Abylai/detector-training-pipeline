@@ -6,8 +6,8 @@ import numpy as np
 from models.models import LPDetector
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--weights_path', type=str, default='/home/user/detector_pipeline/weights/detector_turkey.pth')
-parser.add_argument('--out_path', type=str, default='/home/user/detector_pipeline/weights/detector_turkey.np')
+parser.add_argument('--weights_path', type=str, default='../weights/detector_weights_new_uae.pth')
+parser.add_argument('--out_path', type=str, default='../weights/detector_weights_new_uae.np')
 parser.add_argument('--img_w', type=int, default=512)
 parser.add_argument('--img_h', type=int, default=512)
 args = parser.parse_args()

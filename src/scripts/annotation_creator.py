@@ -58,14 +58,14 @@ from sklearn.model_selection import train_test_split
 #
 # np.savetxt('/mnt/data/filenames.txt', data, delimiter=" ", fmt="%s")
 #
-init_annotation_path = '/mnt/data/uae_data/filenames.txt'
+init_annotation_path = '/home/user/mnt/data/uae/images/filenames.txt'
 df = pd.read_csv(init_annotation_path, header=None)
 df.columns = ['filepath']
 
 train, test = train_test_split(df, test_size=0.05, random_state=42)
 
-train.to_csv('/mnt/data/uae_data/train.txt', header=None, index_label=False, index=False)
-test.to_csv('/mnt/data/uae_data/val.txt', header=None, index_label=False, index=False)
+train.to_csv('/home/user/mnt/data/uae/images/train.txt', header=None, index_label=False, index=False)
+test.to_csv('/home/user/mnt/data/uae/images/val.txt', header=None, index_label=False, index=False)
 
 # df.columns = ['file_path']
 # print(df)
@@ -74,3 +74,11 @@ test.to_csv('/mnt/data/uae_data/val.txt', header=None, index_label=False, index=
 #
 # df.drop(['file_path'], axis=1, inplace=True)
 # df.to_csv('/mnt/workspace/data/filenames.txt', header=None, index_label=False, index=False)
+
+# base_folder = '/home/user/mnt/data/uae/images/**/**/*'
+#
+# images = np.array([x.replace('/home/user/mnt/data/', '') for x in glob(base_folder) if '.jpg' in x or '.jpeg' in x or '.png' in x])
+# df = pd.DataFrame(data = images)
+# df.to_csv('/home/user/mnt/data/uae/images/filenames.txt', header=None, index_label=False, index=False)
+#
+# stop = 1
