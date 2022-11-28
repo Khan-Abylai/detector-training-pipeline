@@ -35,9 +35,9 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/home/user/mnt/data/uae/images/train.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/home/user/mnt/data/EUROPE_ANNOTATION/train.txt'], train_transforms, size=(args.img_w, args.img_h),
                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/home/user/mnt/data/uae/images/val.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/home/user/mnt/data/EUROPE_ANNOTATION/test.txt'], val_transforms, size=(args.img_w, args.img_h),
                             data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -183,7 +183,7 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='uae', help='model name')
+    parser.add_argument('--model_name', type=str, default='europe', help='model name')
     parser.add_argument('--model_dir', type=str, default='/home/user/mnt/weights/detector_weights/model_',
                         help='directory where model checkpoints are saved')
     parser.add_argument('--data_dir', type=str, default='/home/user/mnt/data', help='directory of data')
