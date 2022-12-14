@@ -165,7 +165,7 @@ def train(gpu, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', type=int, default=40)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=64)
     parser.add_argument('--lr', type=float, default=None)
     parser.add_argument('--num_epochs', type=int, default=500)
