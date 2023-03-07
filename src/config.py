@@ -1,7 +1,7 @@
 PLATE_COORDINATE_DIMENSIONS = 13
 CAR_COORDINATE_DIMENSIONS = 5
 MAX_OBJECTS = 1
-BASE_FOLDER = '/home/user/detector_pipeline'
-DEBUG_FOLDER = '/mnt/workspace/debug'
+BASE_FOLDER = ''
+DEBUG_FOLDER = '/home/yeleussinova/data_SSD/usa_images/test1'
 IMG_H = 512
 IMG_W = 512

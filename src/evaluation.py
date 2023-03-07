@@ -14,6 +14,10 @@ from tools import transforms
 
 def draw_plate_box(img, box, color=(0, 0, 255)):
     cv2.circle(img, (int(box[0]), int(box[1])), 3, color, -1)
+    cv2.circle(img, (int(box[4]), int(box[5])), 3, color, -1)
+    cv2.circle(img, (int(box[6]), int(box[7])), 3, color, -1)
+    cv2.circle(img, (int(box[8]), int(box[9])), 3, color, -1)
+    cv2.circle(img, (int(box[10]), int(box[11])), 3, color, -1)
 
     x1 = int((box[0] - box[2] / 2.))
     y1 = int((box[1] - box[3] / 2.))
@@ -30,7 +34,7 @@ img_size = (img_w, img_h)
 
 
 model = LPDetector(img_size).cuda()
-checkpoint = '../weights/detector_weights_europe.pth'
+checkpoint = '../weights/detector_usa_2.pth'
 
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
@@ -46,9 +50,9 @@ transform = transforms.DualCompose([
 total_plate_num = 0
 plate_recall = 0
 
-with open('/home/user/mnt/data/EUROPE_ANNOTATION/test.txt') as f:
+with open('/home/yeleussinova/data_SSD/usa_images/iteration11.txt') as f:
     ls = f.read().splitlines()
-data_dir = '/home/user/mnt/data'
+data_dir = '/home/yeleussinova/data_SSD/usa_images/'
 for i, path in enumerate(ls):
     path = os.path.join(data_dir, path)
     img = cv2.imread(path)
@@ -60,7 +64,7 @@ for i, path in enumerate(ls):
     img_for_pred = img.copy()
     x, _ = transform(cv2.resize(img, img_size))
     x = torch.stack([x]).cuda()
-    plate_filename = path.replace('.jpg', '.pb')
+    plate_filename = path.replace('.jpg', '.pb').replace('.jpeg', '.pb')
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         plates_target = np.loadtxt(plate_filename).reshape(-1, 12)
@@ -88,7 +92,7 @@ for i, path in enumerate(ls):
 
         total_plate_num += 1
         color = (255, 0, 0)
-        if max_iou > 0.7:
+        if max_iou > 0.75:
             plate_recall += 1
         else:
             color = (0, 255, 255)
@@ -102,11 +106,11 @@ for i, path in enumerate(ls):
         img_for_pred = draw_plate_box(img_for_pred, plate, color=(0, 0, 255))
 
     if incorrect:
-        cv2.imwrite('/home/user/mnt/debug/exp1/' + str(i) + '_pred.jpg', img_for_pred)
-        cv2.imwrite('/home/user/mnt/debug/exp1/' + str(i) + '_target.jpg', img_for_target)
+        cv2.imwrite('/home/yeleussinova/data_SSD/usa_images/detector_out/' + str(i) + '_pred.jpg', img_for_pred)
+        cv2.imwrite('/home/yeleussinova/data_SSD/usa_images/detector_out/' + str(i) + '_target.jpg', img_for_target)
 
 
-    print(f'Working with {i} th image')
+    print(f'Working with {i}th image {path}')
 
 print('plate recall:', plate_recall / total_plate_num)
 print('plate num:', total_plate_num)

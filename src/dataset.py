@@ -128,8 +128,8 @@ if __name__ == '__main__':
         transforms.Rotate(limit=15, prob=0.2), transforms.ScaleDown(scale=0.5, prob=0.5),
         transforms.ImageOnly(transforms.Transpose()), transforms.BoxOnly(transforms.FillBox())])
 
-    lp_dataset = LPDataset(['/mnt/workspace/uae_data/val.txt'], transforms=visible_transform, size=(512, 512),
-                           data_dir='/mnt/workspace/uae_data', train=True, debug=True, return_filepath=True)
+    lp_dataset = LPDataset(['/home/yeleussinova/data_SSD/usa_images/images.txt'], transforms=visible_transform, size=(512, 512),
+                           data_dir='/home/yeleussinova/data_SSD/usa_images/', train=True, debug=True, return_filepath=True)
     for idx, item in enumerate(lp_dataset):
         image_bboxes, filename = item
         image, bboxes = image_bboxes
@@ -147,7 +147,7 @@ if __name__ == '__main__':
             cv2.circle(image, plate[6:8].astype(int), radius=1, color=(255,0, 255), thickness=-1) # Pink
             cv2.circle(image, plate[8:10].astype(int), radius=1, color=(255, 255, 0), thickness=-1) # cyan - light blue
             cv2.circle(image, plate[10:12].astype(int), radius=1, color=(255, 0, 0), thickness=-1) # blue
-            path = os.path.join(config.DEBUG_FOLDER, 'exp2', os.path.basename(filename).replace('.', '_resized_3.'))
+            path = os.path.join(config.DEBUG_FOLDER, '', os.path.basename(filename).replace('.', '_resized_3.'))
             print(f"Path:{path} was written")
             print(image.shape)
             cv2.imwrite(path, image)
