@@ -1,8 +1,7 @@
-_file = /mnt/8tb/detector_workspace/model_dir_lp_detector/23_500_TRAIN_|_Plates_0.000_575632__Loss_0.082_VAL_|_Plates_Recall_0.979_60294_Val_loss_0.085,_lr=3.90625e-05.pth_
+_file = /mnt/sdc1/USA_RELEASE_2/detector/weights/usa/411_500_TRAIN_|_Plates_0.000_45292__Loss_0.160_VAL_|_Plates_Recall_0.934_14813_Val_loss_0.181,_lr=1.953125e-06.pth
 last trained on the all collected facility cars. 
 
-Overall trained data : 5+ MLN images. 
-Epochs : 23 out of 500.
+Overall trained data : 462279 images. 
+Epochs : 411 out of 500.
 
-Result is pretty good.
-Extracted weights path : _file=/mnt/8tb/detector_workspace/extracted_weights/08.08.2022-detector_weights.np_
+Result is good.
