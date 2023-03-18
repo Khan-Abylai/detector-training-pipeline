@@ -35,9 +35,9 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/home/user/mnt/data/EUROPE_ANNOTATION/train.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/train_china_detector.txt', '/mnt/kz_data/kz_new/train_detector_kz.txt'], train_transforms, size=(args.img_w, args.img_h),
                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/home/user/mnt/data/EUROPE_ANNOTATION/test.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/test_china_detector.txt', '/mnt/kz_data/kz_new/test_detector_kz.txt'], val_transforms, size=(args.img_w, args.img_h),
                             data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -166,9 +166,9 @@ def train(gpu, args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--num_workers', type=int, default=64)
+    parser.add_argument('--num_workers', type=int, default=16)
     parser.add_argument('--lr', type=float, default=None)
-    parser.add_argument('--num_epochs', type=int, default=500)
+    parser.add_argument('--num_epochs', type=int, default=100)
     parser.add_argument('--checkpoint', type=str, default=None, help='path to checkpoint weights')
 
     parser.add_argument('--img_w', type=int, default=512, help='image width')
@@ -183,10 +183,10 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='europe', help='model name')
-    parser.add_argument('--model_dir', type=str, default='/home/user/mnt/weights/detector_weights/model_',
+    parser.add_argument('--model_name', type=str, default='china', help='model name')
+    parser.add_argument('--model_dir', type=str, default='/mnt/china_data/detector_weights/model_',
                         help='directory where model checkpoints are saved')
-    parser.add_argument('--data_dir', type=str, default='/home/user/mnt/data', help='directory of data')
+    parser.add_argument('--data_dir', type=str, default='', help='directory of data')
 
     args = parser.parse_args()
 

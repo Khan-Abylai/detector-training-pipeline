@@ -19,7 +19,7 @@ def get_latest_checkpoint(model_dir):
 
 
 def get_model(input_size, gpu=0):
-    model = LPDetector(input_size).cuda(gpu)
+    model = LPDetector(input_size, cuda=gpu).cuda(gpu)
     model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
 
     return model

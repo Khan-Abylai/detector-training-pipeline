@@ -30,7 +30,7 @@ img_size = (img_w, img_h)
 
 
 model = LPDetector(img_size).cuda()
-checkpoint = '../weights/detector_weights_europe.pth'
+checkpoint = '/mnt/storage/workspace/weights/model_china/30_100_TRAIN_|_Plates_0.000_115084__Loss_0.408_VAL_|_Plates_Recall_0.953_22875_Val_loss_0.596,_lr=1.953125e-06.pth'
 
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
@@ -46,9 +46,9 @@ transform = transforms.DualCompose([
 total_plate_num = 0
 plate_recall = 0
 
-with open('/home/user/mnt/data/EUROPE_ANNOTATION/test.txt') as f:
+with open('/mnt/data/ccpd_new/test.txt') as f:
     ls = f.read().splitlines()
-data_dir = '/home/user/mnt/data'
+data_dir = ''
 for i, path in enumerate(ls):
     path = os.path.join(data_dir, path)
     img = cv2.imread(path)
@@ -102,8 +102,8 @@ for i, path in enumerate(ls):
         img_for_pred = draw_plate_box(img_for_pred, plate, color=(0, 0, 255))
 
     if incorrect:
-        cv2.imwrite('/home/user/mnt/debug/exp1/' + str(i) + '_pred.jpg', img_for_pred)
-        cv2.imwrite('/home/user/mnt/debug/exp1/' + str(i) + '_target.jpg', img_for_target)
+        cv2.imwrite('/mnt/storage/workspace/debug/exp2/' + str(i) + '_pred.jpg', img_for_pred)
+        cv2.imwrite('/mnt/storage/workspace/debug/exp2/' + str(i) + '_target.jpg', img_for_target)
 
 
     print(f'Working with {i} th image')

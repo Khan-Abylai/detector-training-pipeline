@@ -10,7 +10,7 @@ except:
 
 class LPDetector(nn.Module):
 
-    def __init__(self, image_size):
+    def __init__(self, image_size, cuda=None):
         super().__init__()
 
         self.plate_features = nn.Sequential(OrdinaryConvBlock(3, 16), OrdinaryConvBlock(16, 16),
@@ -25,7 +25,7 @@ class LPDetector(nn.Module):
             LinearConvBlock(in_channels=256, out_channels=config.PLATE_COORDINATE_DIMENSIONS, kernel_size=1, stride=1))
         self.yolo_plates.append(
             PlateYoloBlock(image_size, grid_size=16, iou_threshold=0.7, conf_threshold=0.8, conf_scale=2, coord_scale=2,
-                           noobject_scale=0.08, ))
+                           noobject_scale=0.08, cuda=cuda))
 
     def forward(self, imgs, plate_boxes=None, validate=False):
         yolo_plates_output = self.plate_features(imgs)

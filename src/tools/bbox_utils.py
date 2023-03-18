@@ -46,8 +46,8 @@ class BBoxUtilsPlate:
         self.target_y4 *= 0
 
     def create_plate_targets_bounding_boxes_vectorized(self, predictions, target, grid_w, grid_h, iou_threshold=0.7,
-                                                       conf_threshold=0.5, validate=False, calc_weights=False):
-
+                                                       conf_threshold=0.5, validate=False, calc_weights=False, cuda=None):
+        stop = 1
         batch_size = target.size(0)
         if not self.initiated:
             self.initiate(batch_size, grid_h, grid_w)
@@ -62,11 +62,10 @@ class BBoxUtilsPlate:
         target[:, :, 1::2] *= grid_h
         gi_array = torch.clamp(torch.clamp(target[:, :, 0], min=0), max=grid_w - 1).long()
         gj_array = torch.clamp(torch.clamp(target[:, :, 1], min=0), max=grid_h - 1).long()
-
         self.target_x[:, gj_array, gi_array] = target[:, :, 0] - gi_array
         self.target_y[:, gj_array, gi_array] = target[:, :, 1] - gj_array
 
-        ind = torch.Tensor([list(range(batch_size))] * config.MAX_OBJECTS).long().T
+        ind = torch.Tensor([list(range(batch_size))] * config.MAX_OBJECTS).long().T.to(f"cuda:{cuda}")
         self.target_w[ind[non_zero_ind], gj_array[non_zero_ind], gi_array[non_zero_ind]] = torch.log(
             target[:, :, 2][non_zero_ind])
         self.target_h[ind[non_zero_ind], gj_array[non_zero_ind], gi_array[non_zero_ind]] = torch.log(

@@ -4,11 +4,11 @@ from glob import glob
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-folder = '/home/user/mnt/data'
-
-folder_names = ['austria', 'czech', 'finland', 'germany', 'greece', 'italy', 'latvia', 'luxemburg', 'netherlands',
-                'romania', 'spain', 'swiss', 'bulgaria', 'estonia', 'france', 'hungary',
-                'lithuania', 'montenegro', 'poland', 'portugal', 'slovakia', 'sweden']
+# folder = '/home/user/mnt/data'
+#
+# folder_names = ['austria', 'czech', 'finland', 'germany', 'greece', 'italy', 'latvia', 'luxemburg', 'netherlands',
+#                 'romania', 'spain', 'swiss', 'bulgaria', 'estonia', 'france', 'hungary',
+#                 'lithuania', 'montenegro', 'poland', 'portugal', 'slovakia', 'sweden']
 # print(len(folder_names))
 #
 # folder_index = 0
@@ -36,18 +36,18 @@ folder_names = ['austria', 'czech', 'finland', 'germany', 'greece', 'italy', 'la
 
 
 
-for folder_name in folder_names:
-    f_name = os.path.join(folder, folder_name, 'filenames.txt')
-    df = pd.read_csv(f_name, header=None)
-    df.columns = ['filepath']
-
-    train, test = train_test_split(df, test_size=0.05, random_state=42)
-
-    train_path = os.path.join(folder, folder_name, 'train.txt')
-    test_path = os.path.join(folder, folder_name, 'test.txt')
-    stop = 1
-    train.to_csv(train_path, header=None, index_label=False, index=False)
-    test.to_csv(test_path, header=None, index_label=False, index=False)
+# for folder_name in folder_names:
+#     f_name = os.path.join(folder, folder_name, 'filenames.txt')
+#     df = pd.read_csv(f_name, header=None)
+#     df.columns = ['filepath']
+#
+#     train, test = train_test_split(df, test_size=0.05, random_state=42)
+#
+#     train_path = os.path.join(folder, folder_name, 'train.txt')
+#     test_path = os.path.join(folder, folder_name, 'test.txt')
+#     stop = 1
+#     train.to_csv(train_path, header=None, index_label=False, index=False)
+#     test.to_csv(test_path, header=None, index_label=False, index=False)
 
 
 # folder1 = '/mnt/data/uae_data/data'
@@ -128,3 +128,9 @@ for folder_name in folder_names:
 # df.to_csv('/home/user/mnt/data/uae/images/filenames.txt', header=None, index_label=False, index=False)
 #
 # stop = 1
+
+df = pd.read_csv("/mnt/kz_data/kz_new/train_kz.txt")
+df.columns = ["filename"]
+df['local_fname'] = df['filename'].apply(lambda x:x.replace("/mnt/data/", "/mnt/kz_data/"))
+df.drop(["filename"], axis=1, inplace=True)
+df.to_csv("/mnt/kz_data/kz_new/train_detector_kz.txt", header=None, index_label=False, index=False)
