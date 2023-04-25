@@ -1,20 +1,23 @@
 import torch.nn as nn
 import torch
 import numpy as np
+
 try:
-    from tools.bbox_utils import BBoxUtilsPlate,BBoxUtils
+    from tools.bbox_utils import BBoxUtilsPlate, BBoxUtils
 except:
     from src.tools.bbox_utils import BBoxUtilsPlate, BBoxUtils
 from torch.nn import functional as fn
+
 try:
     import config as config
 except:
     import src.config as config
 
+
 class PlateYoloBlock(nn.Module):
 
     def __init__(self, image_size, grid_size, conf_scale=2, coord_scale=2, noobject_scale=0.05, iou_threshold=0.7,
-                 conf_threshold=0.5, cuda=None,calc_weights=False):
+                 conf_threshold=0.5, cuda=None, calc_weights=False):
         super().__init__()
         self.bbox_attrs = 13
         self.w, self.h = image_size
@@ -36,7 +39,7 @@ class PlateYoloBlock(nn.Module):
         if cuda is None:
             self.cuda = 0
         else:
-            self.cuda=cuda
+            self.cuda = cuda
 
     def forward(self, coordinates, target=None, validate=False):
         batch_size = coordinates.size(0)
@@ -69,7 +72,8 @@ class PlateYoloBlock(nn.Module):
             output = self.bbox_u.create_plate_targets_bounding_boxes_vectorized(prediction_boxes, target, self.grid_w,
                                                                                 self.grid_h, self.iou_threshold,
                                                                                 self.conf_threshold, validate,
-                                                                                calc_weights=self.calc_weights, cuda=self.cuda)
+                                                                                calc_weights=self.calc_weights,
+                                                                                cuda=self.cuda)
 
             correct_predictions, incorrect_predictions, objects, mask, loss_weights, target_x, target_y, target_w, target_h = output[
                                                                                                                               :9]
