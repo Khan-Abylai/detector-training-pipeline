@@ -4,35 +4,41 @@ from glob import glob
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# folder = '/home/user/mnt/data'
+# folder = '/mnt_sdb1/lpRecognizerData/data'
 #
 # folder_names = ['austria', 'czech', 'finland', 'germany', 'greece', 'italy', 'latvia', 'luxemburg', 'netherlands',
 #                 'romania', 'spain', 'swiss', 'bulgaria', 'estonia', 'france', 'hungary',
 #                 'lithuania', 'montenegro', 'poland', 'portugal', 'slovakia', 'sweden']
-# print(len(folder_names))
+#
+# folder = "/mnt_sda1/platesManiaData/out_images/kz"
+# folder_names = ["img"]
+#
+# out_path = "/mnt_sda1/sng_eu"
+# out_txt = 'filenames_kz.txt'
 #
 # folder_index = 0
+# data = []
 # for folder_name in folder_names:
 #     file_index = 0
-#     pattern = os.path.join(folder, folder_name, 'images', "**", "*")
+#     pattern = os.path.join(folder, folder_name, '*', "*.pb")
 #     files = glob(pattern)
-#     data = []
+#     print(folder_name, len(files))
 #     for file in files:
-#         extension = os.path.basename(file).split('.')[-1]
-#         if extension == 'pb':
-#             continue
-#         else:
-#             pb_file = os.path.join(os.path.dirname(file), os.path.basename(file).replace(extension, 'pb'))
-#             if os.path.exists(pb_file):
-#                 appended_data = file.replace(f'{folder}/', '')
-#                 data.append(appended_data)
-#                 print(f'{appended_data} added. file index:{file_index} folder index:{folder_index}')
-#                 file_index += 1
-#
-#     data = np.array(data)
+#         # extension = os.path.basename(file).split('.')[-1]
+#         # if extension == 'pb':
+#         #     data.append(file)
+#         #     continue
+#         # else:
+#         #     pb_file = os.path.join(os.path.dirname(file), os.path.basename(file).replace(extension, 'pb'))
+#         if os.path.exists(file.replace('.pb', '.jpg')):
+#             # appended_data = file.replace(f'{folder}/', '')
+#             data.append(file.replace('.pb', '.jpg'))
+#             # print(f'{file} added. file index:{file_index} folder index:{folder_index}')
+#             file_index += 1
 #
 #     folder_index += 1
-#     np.savetxt(os.path.join(folder,folder_name, 'filenames.txt'), data, delimiter=" ", fmt="%s")
+# data = np.array(data)
+# np.savetxt(os.path.join(out_path, out_txt), data, delimiter=" ", fmt="%s")
 
 
 
@@ -104,14 +110,17 @@ from sklearn.model_selection import train_test_split
 #
 # np.savetxt('/mnt/data/filenames.txt', data, delimiter=" ", fmt="%s")
 #
-# init_annotation_path = '/home/user/mnt/data/uae/images/filenames.txt'
-# df = pd.read_csv(init_annotation_path, header=None)
-# df.columns = ['filepath']
-#
-# train, test = train_test_split(df, test_size=0.05, random_state=42)
-#
-# train.to_csv('/home/user/mnt/data/uae/images/train.txt', header=None, index_label=False, index=False)
-# test.to_csv('/home/user/mnt/data/uae/images/val.txt', header=None, index_label=False, index=False)
+init_annotation_path = '/mnt_sda1/sng_eu/filenames_all.txt'
+df = pd.read_csv(init_annotation_path, header=None)
+df.columns = ['filepath']
+
+train, test = train_test_split(df, test_size=0.1, random_state=42)
+
+train.to_csv('/mnt_sda1/sng_eu/train_sng_eu.txt', header=None, index_label=False, index=False)
+test.to_csv('/mnt_sda1/sng_eu//val_sng_eu.txt', header=None, index_label=False, index=False)
+
+print("train size", len(train))
+print("test size", len(test))
 
 # df.columns = ['file_path']
 # print(df)
@@ -129,8 +138,8 @@ from sklearn.model_selection import train_test_split
 #
 # stop = 1
 
-df = pd.read_csv("/mnt/kz_data/kz_new/train_kz.txt")
-df.columns = ["filename"]
-df['local_fname'] = df['filename'].apply(lambda x:x.replace("/mnt/data/", "/mnt/kz_data/"))
-df.drop(["filename"], axis=1, inplace=True)
-df.to_csv("/mnt/kz_data/kz_new/train_detector_kz.txt", header=None, index_label=False, index=False)
+# df = pd.read_csv("/mnt/kz_data/kz_new/train_kz.txt")
+# df.columns = ["filename"]
+# df['local_fname'] = df['filename'].apply(lambda x:x.replace("/mnt/data/", "/mnt/kz_data/"))
+# df.drop(["filename"], axis=1, inplace=True)
+# df.to_csv("/mnt/kz_data/kz_new/train_detector_kz.txt", header=None, index_label=False, index=False)

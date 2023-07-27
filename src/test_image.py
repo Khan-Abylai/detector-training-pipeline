@@ -1,4 +1,5 @@
 import os
+import shutil
 from glob import glob
 
 import cv2
@@ -15,9 +16,9 @@ img_h = 512
 img_size = (img_w, img_h)
 model = LPDetector(img_size).cuda()
 
-base_folder = '/home/user/detector_pipeline'
+base_folder = '../data/sng_eu'
 
-checkpoint = os.path.join(base_folder, 'weights/detector_weights_new_uae.pth')
+checkpoint = os.path.join('../weights/detector_sng_eu.pth')
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
 model.load_state_dict(checkpoint)
@@ -26,8 +27,8 @@ model.eval()
 transform = transforms.DualCompose(
     [transforms.ImageOnly(transforms.Transpose()), transforms.Normalize(), transforms.ToTensor()])
 
-ls = glob(os.path.join(base_folder, 'data/uae_data/*'))
-
+ls = glob(os.path.join(base_folder, '*'))
+print("images", len(ls))
 for image_path in ls:
     img = cv2.imread(image_path)
     img_orig = img.copy()
@@ -40,7 +41,7 @@ for image_path in ls:
     plate_output = plate_output.cpu().detach().numpy()
     rx = float(img_orig.shape[1]) / img_w
     ry = float(img_orig.shape[0]) / img_h
-    plates = bu.nms_np(plate_output[0], conf_thres=0.85)
+    plates = bu.nms_np(plate_output[0], conf_thres=0.95)
     extension = os.path.basename(image_path).split('.')[-1]
     if len(plates) > 0:
         plates[..., [4, 6, 8, 10]] += plates[..., [0]]
@@ -69,10 +70,12 @@ for image_path in ls:
             transformation_matrix = cv2.getPerspectiveTransform(plate_box, RECT_LP_COORS)
             lp_img = cv2.warpPerspective(img_orig, transformation_matrix,
                                          np.array([plate[2] * rx, plate[3] * ry]).astype(int))
-            cv2.imwrite(os.path.join(base_folder, 'logs/exp4/') + os.path.basename(image_path).replace('.' + extension,
-                                                                                                       '') + f'_lp_{plate_idx}.jpg',
-                        lp_img)
-        cv2.imwrite(os.path.join(base_folder, 'logs/exp4/') + os.path.basename(image_path).replace('.' + extension,
+            # cv2.imwrite('../logs/exp1/' + os.path.basename(image_path).replace('.' + extension,
+            #                                                                                            '') + f'_lp_{plate_idx}.jpg',
+            #             lp_img)
+        cv2.imwrite('../logs/exp2/' + os.path.basename(image_path).replace('.' + extension,
                                                                                                    '') + '.jpg',
                     img_orig)
         print(f"Image:{image_path} was processed and written into debug folder")
+    else:
+        shutil.copy(image_path, "../logs/exp2/not_detected")

@@ -51,9 +51,14 @@ class LPDataset(Dataset):
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
             image = cv2.imread(image_filename)
-            img_h, img_w, img_c = image.shape
+            try:
+                img_h, img_w, img_c = image.shape
+                plate_boxes = np.loadtxt(plate_filename).reshape(-1, 12)
+            except:
+                image = np.zeros((1200, 960, 3), dtype = np.uint8)
+                img_h, img_w, img_c = image.shape
+                plate_boxes = np.zeros((1,12))
 
-            plate_boxes = np.loadtxt(plate_filename).reshape(-1, 12)
             checker_mask_1 = plate_boxes > 1.0
             checker_mask_2 = plate_boxes <= 0.0
 

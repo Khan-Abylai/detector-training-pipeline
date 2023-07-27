@@ -29,15 +29,15 @@ def train(gpu, args):
         os.mkdir(model_directory)
     model = utils.get_model((args.img_w, args.img_h), gpu)
 
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.00025)
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.5, patience=0, eps=1e-6)
     model, start_epoch = utils.load_weights(model, model_directory, args.checkpoint, gpu)
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/train_china_detector.txt', '/mnt/kz_data/kz_new/train_detector_kz.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/mnt_sda1/sng_eu/train_sng_eu.txt'], train_transforms, size=(args.img_w, args.img_h),
                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/test_china_detector.txt', '/mnt/kz_data/kz_new/test_detector_kz.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/mnt_sda1/sng_eu/val_sng_eu.txt'], val_transforms, size=(args.img_w, args.img_h),
                             data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=16)
-    parser.add_argument('--lr', type=float, default=None)
+    parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--num_epochs', type=int, default=100)
     parser.add_argument('--checkpoint', type=str, default=None, help='path to checkpoint weights')
 
@@ -183,8 +183,8 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='china', help='model name')
-    parser.add_argument('--model_dir', type=str, default='/mnt/china_data/detector_weights/model_',
+    parser.add_argument('--model_name', type=str, default='sng_eu_detector', help='model name')
+    parser.add_argument('--model_dir', type=str, default='/mnt_sda1/sng_eu/weights_detection/',
                         help='directory where model checkpoints are saved')
     parser.add_argument('--data_dir', type=str, default='', help='directory of data')
 
