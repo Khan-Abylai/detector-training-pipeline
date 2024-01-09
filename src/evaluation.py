@@ -10,7 +10,7 @@ from models.models import LPDetector
 import utils
 import tools.bbox_utils as bu
 from tools import transforms
-
+import config
 
 def draw_plate_box(img, box, color=(0, 0, 255)):
     cv2.circle(img, (int(box[0]), int(box[1])), 3, color, -1)
@@ -24,8 +24,8 @@ def draw_plate_box(img, box, color=(0, 0, 255)):
     return img
 
 
-img_w = 512
-img_h = 512
+img_w = config.IMG_W
+img_h = config.IMG_H
 img_size = (img_w, img_h)
 
 

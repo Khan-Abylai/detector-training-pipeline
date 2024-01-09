@@ -46,7 +46,7 @@ class BBoxUtilsPlate:
         self.target_y4 *= 0
 
     def create_plate_targets_bounding_boxes_vectorized(self, predictions, target, grid_w, grid_h, iou_threshold=0.7,
-                                                       conf_threshold=0.5, validate=False, calc_weights=False, cuda=None):
+                                                       conf_threshold=0.7, validate=False, calc_weights=False, cuda=None):
         stop = 1
         batch_size = target.size(0)
         if not self.initiated:

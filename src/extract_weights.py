@@ -2,14 +2,14 @@ import argparse
 import torch
 import torch.nn as nn
 import numpy as np
-
+import config
 from models.models import LPDetector
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--weights_path', type=str, default='../weights/model_detector_china.pth')
-parser.add_argument('--out_path', type=str, default='../weights/model_detector_china.np')
-parser.add_argument('--img_w', type=int, default=512)
-parser.add_argument('--img_h', type=int, default=512)
+parser.add_argument('--weights_path', type=str, default='/mnt/data/detector/weights/detector_wnpr.pth')
+parser.add_argument('--out_path', type=str, default='../weights/wnpr_detector_weights.np')
+parser.add_argument('--img_w', type=int, default=config.IMG_W)
+parser.add_argument('--img_h', type=int, default=config.IMG_W)
 args = parser.parse_args()
 
 model = LPDetector((args.img_w, args.img_h))

@@ -9,7 +9,6 @@ from torch import optim
 import torch.distributed as dist
 from tqdm import tqdm
 import torch.multiprocessing as mp
-import torch.nn.functional as F
 
 from dataset import LPDataset
 import utils
@@ -35,9 +34,9 @@ def train(gpu, args):
     if args.lr is not None:
         optimizer.param_groups[0]['lr'] = args.lr
     train_transforms, val_transforms = utils.get_transforms()
-    train_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/train_china_detector.txt', '/mnt/kz_data/kz_new/train_detector_kz.txt'], train_transforms, size=(args.img_w, args.img_h),
+    train_dataset = LPDataset(['/mnt/data/detector/train.txt'], train_transforms, size=(args.img_w, args.img_h),
                               data_dir=args.data_dir, train=True)
-    val_dataset = LPDataset(['/mnt/china_data/annotated_data/ccpd_new/test_china_detector.txt', '/mnt/kz_data/kz_new/test_detector_kz.txt'], val_transforms, size=(args.img_w, args.img_h),
+    val_dataset = LPDataset(['/mnt/data/detector/val.txt'], val_transforms, size=(args.img_w, args.img_h),
                             data_dir=args.data_dir)
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset, num_replicas=args.gpu_nums, rank=gpu,
@@ -67,7 +66,7 @@ def train(gpu, args):
             plate_boxes = plate_boxes.to('cuda:' + str(gpu), non_blocking=True)
 
             batch_size = images.shape[0]
-            batch_info = model(images, plate_boxes)
+            batch_info = model(images, plate_boxes, validate=True)
             batch_correct_plate_boxes, batch_incorrect_plate_boxes, batch_num_plate_boxes, batch_plate_loss = batch_info
             loss = (batch_plate_loss) * 100
             train_current_loss = loss.item()
@@ -81,7 +80,6 @@ def train(gpu, args):
 
             train_num_plate_boxes += batch_num_plate_boxes
             train_recall_plate_boxes = train_correct_plate_boxes / train_num_plate_boxes
-
             train_mean_loss = train_mean_loss * (n / (n + batch_size)) + train_current_loss * batch_size / (
                     n + batch_size)
             n += batch_size
@@ -171,8 +169,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_epochs', type=int, default=100)
     parser.add_argument('--checkpoint', type=str, default=None, help='path to checkpoint weights')
 
-    parser.add_argument('--img_w', type=int, default=512, help='image width')
-    parser.add_argument('--img_h', type=int, default=512, help='image height')
+    parser.add_argument('--img_w', type=int, default=config.IMG_W, help='image width')
+    parser.add_argument('--img_h', type=int, default=config.IMG_H, help='image height')
 
     parser.add_argument('--lmdb', type=int, default=0, help='use lmdb')
     parser.add_argument('--tqdm', type=int, default=1, help='use tqdm')
@@ -183,10 +181,10 @@ if __name__ == '__main__':
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
 
-    parser.add_argument('--model_name', type=str, default='china', help='model name')
-    parser.add_argument('--model_dir', type=str, default='/mnt/china_data/detector_weights/model_',
+    parser.add_argument('--model_name', type=str, default='wnpr', help='model name')
+    parser.add_argument('--model_dir', type=str, default='/mnt/data/detector/weights/model_',
                         help='directory where model checkpoints are saved')
-    parser.add_argument('--data_dir', type=str, default='', help='directory of data')
+    parser.add_argument('--data_dir', type=str, default='/mnt/data', help='directory of data')
 
     args = parser.parse_args()
 

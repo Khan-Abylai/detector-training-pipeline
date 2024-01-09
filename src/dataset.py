@@ -16,7 +16,7 @@ count = 0
 
 
 class LPDataset(Dataset):
-    def __init__(self, txt_files, transforms, size=(512, 512), data_dir='', train=False, debug=False,
+    def __init__(self, txt_files, transforms, size=(config.IMG_W, config.IMG_H), data_dir='', train=False, debug=False,
                  return_filepath=False):
         image_filenames = []
         for txt_file in txt_files:
@@ -37,14 +37,13 @@ class LPDataset(Dataset):
 
     def __getitem__(self, index):
         image_filename = os.path.join(self.data_dir, self.image_filenames[index])
-        stop = 1
         if not os.path.exists(image_filename):
             print("no file")
             return self[(index + 1) % len(self)]
-        with open(image_filename, 'rb') as f:
-            check_chars = f.read()[-2:]
-        if check_chars != b'\xff\xd9':
-            return self[(index + 1) % len(self)]
+        # with open(image_filename, 'rb') as f:
+        #     check_chars = f.read()[-2:]
+        # if check_chars != b'\xff\xd9':
+        #     return self[(index + 1) % len(self)]
 
         plate_filename = image_filename.replace('.jpg', '.pb').replace('.jpeg', '.pb').replace('.png', '.pb')
 
@@ -128,7 +127,7 @@ if __name__ == '__main__':
         transforms.Rotate(limit=15, prob=0.2), transforms.ScaleDown(scale=0.5, prob=0.5),
         transforms.ImageOnly(transforms.Transpose()), transforms.BoxOnly(transforms.FillBox())])
 
-    lp_dataset = LPDataset(['/mnt/workspace/uae_data/val.txt'], transforms=visible_transform, size=(512, 512),
+    lp_dataset = LPDataset(['/mnt/workspace/uae_data/val.txt'], transforms=visible_transform, size=(config.IMG_W, config.IMG_H),
                            data_dir='/mnt/workspace/uae_data', train=True, debug=True, return_filepath=True)
     for idx, item in enumerate(lp_dataset):
         image_bboxes, filename = item
@@ -136,8 +135,8 @@ if __name__ == '__main__':
         bboxes[:, [4, 6, 8, 10]] += bboxes[:, [0]]
         bboxes[:, [5, 7, 9, 11]] += bboxes[:, [1]]
 
-        bboxes[:, ::2] *= 512
-        bboxes[:, 1::2] *= 512
+        bboxes[:, ::2] *= config.IMG_W
+        bboxes[:, 1::2] *= config.IMG_H
         image = image.transpose(1, 2, 0)
         image = np.ascontiguousarray(image, dtype=np.uint8)
         for plate in bboxes:

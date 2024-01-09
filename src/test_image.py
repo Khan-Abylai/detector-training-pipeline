@@ -6,12 +6,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+import config
 import tools.bbox_utils as bu
 from models.models import LPDetector
 from tools import transforms
 
-img_w = 512
-img_h = 512
+img_w = config.IMG_W
+img_h = config.IMG_H
 img_size = (img_w, img_h)
 model = LPDetector(img_size).cuda()
 

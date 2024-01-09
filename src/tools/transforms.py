@@ -5,10 +5,11 @@ import numpy as np
 import torch
 from imgaug import augmenters as ia
 
+
 try:
-    from config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS
+    from config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS, IMG_W, IMG_H
 except:
-    from src.config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS
+    from src.config import PLATE_COORDINATE_DIMENSIONS, CAR_COORDINATE_DIMENSIONS, MAX_OBJECTS, IMG_W, IMG_H
 
 
 class DualCompose:
@@ -221,7 +222,7 @@ class RandomGrayScale:
 
 class Resize:
 
-    def __init__(self, size=(512, 512)):
+    def __init__(self, size=(IMG_W, IMG_H)):
         self.size = size
 
     def __call__(self, img):
