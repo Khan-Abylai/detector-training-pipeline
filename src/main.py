@@ -163,15 +163,13 @@ def train(gpu, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--batch_size', type=int, default=72)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=64)
     parser.add_argument('--lr', type=float, default=None)
     parser.add_argument('--num_epochs', type=int, default=100)
     parser.add_argument('--checkpoint', type=str, default=None, help='path to checkpoint weights')
-
     parser.add_argument('--img_w', type=int, default=config.IMG_W, help='image width')
     parser.add_argument('--img_h', type=int, default=config.IMG_H, help='image height')
-
     parser.add_argument('--lmdb', type=int, default=0, help='use lmdb')
     parser.add_argument('--tqdm', type=int, default=1, help='use tqdm')
     parser.add_argument('--gpu_nums', type=int, default=torch.cuda.device_count(), help='number of gpus')
@@ -180,12 +178,10 @@ if __name__ == '__main__':
     parser.add_argument('--batch_multiplier', type=int, default=1,
                         help='actual batch size = batch_size * batch_multiplier (use when cuda out of memory)')
     parser.add_argument('--logging', type=int, default=1, help='use logging')
-
-    parser.add_argument('--model_name', type=str, default='usa_release_3', help='model name')
+    parser.add_argument('--model_name', type=str, default='usa_release_3.1', help='model name')
     parser.add_argument('--model_dir', type=str, default='/mnt/data/detector/weights/model_',
                         help='directory where model checkpoints are saved')
     parser.add_argument('--data_dir', type=str, default='/mnt/data/detector', help='directory of data')
-
     args = parser.parse_args()
 
     os.environ['MASTER_ADDR'] = 'localhost'
