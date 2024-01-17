@@ -1,29 +1,29 @@
-import os
-import cv2
-import numpy as np
-from glob import glob
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-
-data_folder = '/mnt/data/detector/images'
-
-all_files = glob(os.path.join(data_folder, '*.png'))
-
-print(len(all_files))
-
-filenames = []
-
-for idx, item in enumerate(all_files):
-    if os.path.exists(item.replace(".png", ".pb")):
-        filenames.append(item.replace("/mnt/data/", ""))
-
-filenames = np.array(filenames)
-
-train_filenames, val_filenames = train_test_split(filenames, test_size=0.15, random_state=42)
-
-np.savetxt('/mnt/data/detector/train.txt', train_filenames,  delimiter=" ", fmt="%s")
-np.savetxt('/mnt/data/detector/val.txt', val_filenames,  delimiter=" ", fmt="%s")
+# import os
+# import cv2
+# import numpy as np
+# from glob import glob
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
+#
+#
+# data_folder = '/mnt/data/detector/images'
+#
+# all_files = glob(os.path.join(data_folder, '*.png'))
+#
+# print(len(all_files))
+#
+# filenames = []
+#
+# for idx, item in enumerate(all_files):
+#     if os.path.exists(item.replace(".png", ".pb")):
+#         filenames.append(item.replace("/mnt/data/", ""))
+#
+# filenames = np.array(filenames)
+#
+# train_filenames, val_filenames = train_test_split(filenames, test_size=0.15, random_state=42)
+#
+# np.savetxt('/mnt/data/detector/train.txt', train_filenames,  delimiter=" ", fmt="%s")
+# np.savetxt('/mnt/data/detector/val.txt', val_filenames,  delimiter=" ", fmt="%s")
 #
 # folder = '/home/user/mnt/data'
 #
@@ -156,18 +156,6 @@ np.savetxt('/mnt/data/detector/val.txt', val_filenames,  delimiter=" ", fmt="%s"
 # df.to_csv("/mnt/kz_data/kz_new/train_detector_kz.txt", header=None, index_label=False, index=False)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # from glob import glob
 # import os
 #
@@ -262,3 +250,42 @@ np.savetxt('/mnt/data/detector/val.txt', val_filenames,  delimiter=" ", fmt="%s"
 #             pb_file_path = image_path.replace(".png", ".pb")
 #             np.savetxt(pb_file_path, full_annotation)
 
+
+# import os
+# import shutil
+# from glob import glob
+#
+# import numpy as np
+#
+# anns = []
+# prefix = '/mnt/data/USA_RELEASE_2/detector/'
+# base_folder = '/mnt/data/USA_RELEASE_2/detector/jan-2024-iteration/images'
+# images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
+# annotation_path = '/mnt/data/USA_RELEASE_2/detector/jan-2024-iteration/filenames.txt'
+# for idx,image in enumerate(images):
+#     approx_path = image.replace("/images/", "/for_annotation/").replace(".jpeg", ".pb")
+#     print(idx,approx_path)
+#     if os.path.exists(image) and os.path.exists(approx_path):
+#         new_path = approx_path.replace("/for_annotation/", "/images/")
+#         shutil.copy(approx_path, new_path)
+#         image = image.replace(prefix, '')
+#         anns.append(image)
+#
+# anns = np.array(anns)
+# np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+df1 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/all_files.txt")
+df1.columns = ['filename']
+df2 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/jan-2024-filenames.txt")
+df2.columns = ['filename']
+df = pd.concat([df1, df2], axis=0, ignore_index=True)
+
+train, test = train_test_split(df, test_size=0.1, random_state=42)
+
+
+train.to_csv('/mnt/data/USA_RELEASE_2/detector/train.txt', index=False, index_label=False)
+test.to_csv('/mnt/data/USA_RELEASE_2/detector/test.txt', index=False, index_label=False)
+
+stop = 1
