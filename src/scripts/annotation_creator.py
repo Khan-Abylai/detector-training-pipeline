@@ -262,7 +262,7 @@ prefix = '/mnt/data/recognizer/'
 base_folder = '/mnt/data/recognizer/jan-2024-iteration/lp_images'
 images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
 annotation_path = '/mnt/data/recognizer/jan-2024-iteration/jan-2024-iteration.csv'
-anns.append(["image_path,car_labels,region"])
+anns.append(["image_path,car_labels"])
 for idx,image in enumerate(images):
     approx_path = image.replace("/lp_images/", "/for_annotation/").replace(".jpeg", ".txt").replace("_license_plate.",".")
     print(idx,approx_path)
@@ -273,7 +273,7 @@ for idx,image in enumerate(images):
 
         with open(approx_path, "r") as f:
             content=f.read().strip()
-        ann = ",".join([os.path.join("/data", image), content, "dubai"])
+        ann = ",".join([os.path.join("/data", image), content])
         anns.append(ann)
         stop = 1
 anns = np.array(anns)
