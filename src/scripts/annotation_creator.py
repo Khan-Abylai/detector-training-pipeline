@@ -251,41 +251,46 @@
 #             np.savetxt(pb_file_path, full_annotation)
 
 
-# import os
-# import shutil
-# from glob import glob
+import os
+import shutil
+from glob import glob
+
+import numpy as np
+
+anns = []
+prefix = '/mnt/data/recognizer/'
+base_folder = '/mnt/data/recognizer/jan-2024-iteration/lp_images'
+images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
+annotation_path = '/mnt/data/recognizer/jan-2024-iteration/jan-2024-iteration.csv'
+anns.append(["image_path,car_labels,region"])
+for idx,image in enumerate(images):
+    approx_path = image.replace("/lp_images/", "/for_annotation/").replace(".jpeg", ".txt").replace("_license_plate.",".")
+    print(idx,approx_path)
+    if os.path.exists(image) and os.path.exists(approx_path):
+        new_path = approx_path.replace("/for_annotation/", "/lp_images/")
+        shutil.copy(approx_path, new_path)
+        image = image.replace(prefix, '')
+
+        with open(approx_path, "r") as f:
+            content=f.read().strip()
+        ann = ",".join([os.path.join("/data", image), content, "dubai"])
+        anns.append(ann)
+        stop = 1
+anns = np.array(anns)
+np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
+# import pandas as pd
+# from sklearn.model_selection import train_test_split
 #
-# import numpy as np
+# df1 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/all_files.txt")
+# df1.columns = ['filename']
+# df2 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/jan-2024-filenames.txt")
+# df2.columns = ['filename']
+# df = pd.concat([df1, df2], axis=0, ignore_index=True)
 #
-# anns = []
-# prefix = '/mnt/data/USA_RELEASE_2/detector/'
-# base_folder = '/mnt/data/USA_RELEASE_2/detector/jan-2024-iteration/images'
-# images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
-# annotation_path = '/mnt/data/USA_RELEASE_2/detector/jan-2024-iteration/filenames.txt'
-# for idx,image in enumerate(images):
-#     approx_path = image.replace("/images/", "/for_annotation/").replace(".jpeg", ".pb")
-#     print(idx,approx_path)
-#     if os.path.exists(image) and os.path.exists(approx_path):
-#         new_path = approx_path.replace("/for_annotation/", "/images/")
-#         shutil.copy(approx_path, new_path)
-#         image = image.replace(prefix, '')
-#         anns.append(image)
+# train, test = train_test_split(df, test_size=0.1, random_state=42)
 #
-# anns = np.array(anns)
-# np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-df1 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/all_files.txt")
-df1.columns = ['filename']
-df2 = pd.read_csv("/mnt/data/USA_RELEASE_2/detector/jan-2024-filenames.txt")
-df2.columns = ['filename']
-df = pd.concat([df1, df2], axis=0, ignore_index=True)
-
-train, test = train_test_split(df, test_size=0.1, random_state=42)
-
-
-train.to_csv('/mnt/data/USA_RELEASE_2/detector/train.txt', index=False, index_label=False)
-test.to_csv('/mnt/data/USA_RELEASE_2/detector/test.txt', index=False, index_label=False)
-
-stop = 1
+#
+# train.to_csv('/mnt/data/USA_RELEASE_2/detector/train.txt', index=False, index_label=False)
+# test.to_csv('/mnt/data/USA_RELEASE_2/detector/test.txt', index=False, index_label=False)
+#
+# stop = 1
