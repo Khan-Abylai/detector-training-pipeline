@@ -261,7 +261,7 @@ def bbox_iou(box1, box2, x1y1x2y2=False):
     return iou
 
 
-def nms_np(predictions, conf_thres=0.6, nms_thres=0.4, include_conf=False):
+def nms_np(predictions, conf_thres=0.8, nms_thres=0.4, include_conf=False):
     filter_mask = (predictions[:, -1] >= conf_thres)
     predictions = predictions[filter_mask]
 
