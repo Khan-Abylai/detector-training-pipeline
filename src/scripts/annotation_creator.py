@@ -54,7 +54,7 @@
 #
 #     folder_index += 1
 #     np.savetxt(os.path.join(folder,folder_name, 'filenames.txt'), data, delimiter=" ", fmt="%s")
-
+import os.path
 
 # for folder_name in folder_names:
 #     f_name = os.path.join(folder, folder_name, 'filenames.txt')
@@ -250,34 +250,34 @@
 #             pb_file_path = image_path.replace(".png", ".pb")
 #             np.savetxt(pb_file_path, full_annotation)
 
+#
+# import os
+# import shutil
+# from glob import glob
+#
+# import numpy as np
 
-import os
-import shutil
-from glob import glob
-
-import numpy as np
-
-anns = []
-prefix = '/mnt/data/recognizer/'
-base_folder = '/mnt/data/recognizer/jan-2024-iteration/lp_images'
-images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
-annotation_path = '/mnt/data/recognizer/jan-2024-iteration/jan-2024-iteration.csv'
-anns.append(["image_path,car_labels"])
-for idx,image in enumerate(images):
-    approx_path = image.replace("/lp_images/", "/for_annotation/").replace(".jpeg", ".txt").replace("_license_plate.",".")
-    print(idx,approx_path)
-    if os.path.exists(image) and os.path.exists(approx_path):
-        new_path = approx_path.replace("/for_annotation/", "/lp_images/")
-        shutil.copy(approx_path, new_path)
-        image = image.replace(prefix, '')
-
-        with open(approx_path, "r") as f:
-            content=f.read().strip()
-        ann = ",".join([os.path.join("/data", image), content])
-        anns.append(ann)
-        stop = 1
-anns = np.array(anns)
-np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
+# anns = []
+# prefix = '/mnt/data/recognizer/'
+# base_folder = '/mnt/data/recognizer/jan-2024-iteration/lp_images'
+# images = glob(os.path.join(base_folder, "*/*/*/*/*.jpeg")) + glob(os.path.join(base_folder, "*/*/*/*/*/*.jpeg"))
+# annotation_path = '/mnt/data/recognizer/jan-2024-iteration/jan-2024-iteration.csv'
+# anns.append(["image_path,car_labels"])
+# for idx,image in enumerate(images):
+#     approx_path = image.replace("/lp_images/", "/for_annotation/").replace(".jpeg", ".txt").replace("_license_plate.",".")
+#     print(idx,approx_path)
+#     if os.path.exists(image) and os.path.exists(approx_path):
+#         new_path = approx_path.replace("/for_annotation/", "/lp_images/")
+#         shutil.copy(approx_path, new_path)
+#         image = image.replace(prefix, '')
+#
+#         with open(approx_path, "r") as f:
+#             content=f.read().strip()
+#         ann = ",".join([os.path.join("/data", image), content])
+#         anns.append(ann)
+#         stop = 1
+# anns = np.array(anns)
+# np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
 # import pandas as pd
 # from sklearn.model_selection import train_test_split
 #
@@ -294,3 +294,42 @@ np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
 # test.to_csv('/mnt/data/USA_RELEASE_2/detector/test.txt', index=False, index_label=False)
 #
 # stop = 1
+
+import numpy as np
+import cv2
+import pandas as pd
+from glob import glob
+
+from tqdm import tqdm
+
+content = glob("../../data/zoning/*/*")
+
+for item in tqdm(content):
+    basename = os.path.basename(item)
+    filename, ext = os.path.splitext(basename)
+
+    if ext == '.pb':
+        continue
+    if not os.path.exists(item.replace(ext, ".pb")):
+        continue
+    pb_file_path = item.replace(ext, ".pb")
+    pb_content = np.loadtxt(pb_file_path).reshape(-1, 12)
+
+    image = cv2.imread(item)
+    h_, w_, _ = image.shape
+    pb_content[:, ::2] *= w_
+    pb_content[:, 1::2] *= h_
+
+    plate = pb_content[0].reshape(-1, 2).astype(int)
+    cp, size, lt, lb, rt, rb = plate
+    w,h = size
+    coords = np.array([
+        [0,0], [0, h-1],[w-1, 0],[w-1, h-1]
+    ], dtype='float32')
+
+    bbox = np.array([lt, lb, rt, rb], dtype='float32')
+    sizes = size.astype(int)
+    transformation_matrix = cv2.getPerspectiveTransform(bbox, coords)
+    lp_img = cv2.warpPerspective(image, transformation_matrix, sizes)
+
+    cv2.imwrite(f'../../logs/exp2/{filename}_lp.jpg', lp_img)
