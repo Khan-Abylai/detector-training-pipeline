@@ -250,13 +250,13 @@ import os.path
 #             pb_file_path = image_path.replace(".png", ".pb")
 #             np.savetxt(pb_file_path, full_annotation)
 
-#
+
 # import os
 # import shutil
 # from glob import glob
 #
 # import numpy as np
-
+#
 # anns = []
 # prefix = '/mnt/data/recognizer/'
 # base_folder = '/mnt/data/recognizer/jan-2024-iteration/lp_images'
@@ -276,6 +276,7 @@ import os.path
 #         ann = ",".join([os.path.join("/data", image), content])
 #         anns.append(ann)
 #         stop = 1
+#
 # anns = np.array(anns)
 # np.savetxt(annotation_path, anns, delimiter=" ", fmt="%s")
 # import pandas as pd
@@ -295,41 +296,54 @@ import os.path
 #
 # stop = 1
 
-import numpy as np
-import cv2
-import pandas as pd
 from glob import glob
 
-from tqdm import tqdm
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-content = glob("../../data/zoning/*/*")
+all_images = glob('/data/new_zoning_images/**/**/*.jpeg') + glob('/data/new_zoning_images/**/**/*.jpg') + glob('/data/new_zoning_images/**/**/*.png')
+all_images = np.array([x for x in all_images if os.path.exists(os.path.join(os.path.dirname(x), os.path.basename(x).split('.')[0] + '.pb'))])
 
-for item in tqdm(content):
-    basename = os.path.basename(item)
-    filename, ext = os.path.splitext(basename)
-
-    if ext == '.pb':
-        continue
-    if not os.path.exists(item.replace(ext, ".pb")):
-        continue
-    pb_file_path = item.replace(ext, ".pb")
-    pb_content = np.loadtxt(pb_file_path).reshape(-1, 12)
-
-    image = cv2.imread(item)
-    h_, w_, _ = image.shape
-    pb_content[:, ::2] *= w_
-    pb_content[:, 1::2] *= h_
-
-    plate = pb_content[0].reshape(-1, 2).astype(int)
-    cp, size, lt, lb, rt, rb = plate
-    w,h = size
-    coords = np.array([
-        [0,0], [0, h-1],[w-1, 0],[w-1, h-1]
-    ], dtype='float32')
-
-    bbox = np.array([lt, lb, rt, rb], dtype='float32')
-    sizes = size.astype(int)
-    transformation_matrix = cv2.getPerspectiveTransform(bbox, coords)
-    lp_img = cv2.warpPerspective(image, transformation_matrix, sizes)
-
-    cv2.imwrite(f'../../logs/exp2/{filename}_lp.jpg', lp_img)
+df = pd.DataFrame(data=all_images, columns=['filename'])
+train, test = train_test_split(df, test_size=0.1, random_state=42)
+train.to_csv('/data/new_zoning_images/train.txt', index=False, index_label=False)
+test.to_csv('/data/new_zoning_images/test.txt', index=False, index_label=False)
+# import numpy as np
+# import cv2
+# import pandas as pd
+# from glob import glob
+#
+# from tqdm import tqdm
+#
+# content = glob("../../data/zoning/*/*")
+#
+# for item in tqdm(content):
+#     basename = os.path.basename(item)
+#     filename, ext = os.path.splitext(basename)
+#
+#     if ext == '.pb':
+#         continue
+#     if not os.path.exists(item.replace(ext, ".pb")):
+#         continue
+#     pb_file_path = item.replace(ext, ".pb")
+#     pb_content = np.loadtxt(pb_file_path).reshape(-1, 12)
+#
+#     image = cv2.imread(item)
+#     h_, w_, _ = image.shape
+#     pb_content[:, ::2] *= w_
+#     pb_content[:, 1::2] *= h_
+#
+#     plate = pb_content[0].reshape(-1, 2).astype(int)
+#     cp, size, lt, lb, rt, rb = plate
+#     w,h = size
+#     coords = np.array([
+#         [0,0], [0, h-1],[w-1, 0],[w-1, h-1]
+#     ], dtype='float32')
+#
+#     bbox = np.array([lt, lb, rt, rb], dtype='float32')
+#     sizes = size.astype(int)
+#     transformation_matrix = cv2.getPerspectiveTransform(bbox, coords)
+#     lp_img = cv2.warpPerspective(image, transformation_matrix, sizes)
+#
+#     cv2.imwrite(f'../../logs/exp2/{filename}_lp.jpg', lp_img)

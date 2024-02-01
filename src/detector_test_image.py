@@ -18,7 +18,7 @@ model = LPDetector(img_size).cuda()
 
 base_folder = os.path.dirname(os.getcwd())
 
-checkpoint = os.path.join(base_folder, 'weights/detector_zoning_uae.pth')
+checkpoint = os.path.join(base_folder, 'weights/detector_zoning_uae_weights.pth')
 model = nn.DataParallel(model)
 checkpoint = torch.load(checkpoint)['state_dict']
 model.load_state_dict(checkpoint)
